@@ -1,47 +1,36 @@
+// app/api/send-email/route.ts
 import { NextResponse } from "next/server";
+import sgMail from "@sendgrid/mail";
 
-// import nodemailer from "nodemailer";
+sgMail.setApiKey(process.env.SENDGRID_API_KEY!);
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-    const { searchParams } = new URL(req.url);
-    const course = searchParams.get("course");
-    // const { name, email, message } = await req.json();
-    console.log("@@body", body);
-    console.log("@@course", course);
+    const { to, subject, text, html } = body;
 
-    // const transporter = nodemailer.createTransport({
-    //   host: "smtp.sendgrid.net",
-    //   port: 587,
-    //   auth: {
-    //     user: "apikey", // SendGrid requires this literal string
-    //     pass: process.env.SENDGRID_API_KEY, // store your API key in env
-    //   },
-    // });
+    if (!to || !subject || (!text && !html)) {
+      return NextResponse.json(
+        { success: false, error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
 
-    // // Send email
-    // await transporter.sendMail({
-    //   from: `"Lead Form" <${process.env.SENDER_EMAIL}>`,
-    //   to: process.env.RECEIVER_EMAIL, // your email
-    //   subject: "New Lead from Landing Page",
-    //   text: `
-    //     Name: ${name}
-    //     Email: ${email}
-    //     Message: ${message}
-    //   `,
-    //   html: `
-    //     <p><b>Name:</b> ${name}</p>
-    //     <p><b>Email:</b> ${email}</p>
-    //     <p><b>Message:</b> ${message}</p>
-    //   `,
-    // });
+    const msg = {
+      to,
+      from: "em5647.itx-academy.com",
+      subject,
+      text,
+      html,
+    };
 
-    return NextResponse.json({ success: true });
-  } catch (error) {
+    await sgMail.send(msg);
+
+    return NextResponse.json({ success: true, message: "Email sent" });
+  } catch (error: any) {
     console.error(error);
     return NextResponse.json(
-      { success: false, error: "Failed to send email" },
+      { success: false, error: error.message || "Failed to send email" },
       { status: 500 }
     );
   }
