@@ -1,7 +1,6 @@
 'use client'
 
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/utils/supabase/client";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
@@ -10,32 +9,11 @@ export default function AuthProviders() {
 
     const handleOAuthLogin = (provider: "google" | "azure") => {
         setIsLoading(provider === "google" ? "google" : "microsoft");
-
         const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
         const REDIRECT_URL = encodeURIComponent("https://itx-components.vercel.app/auth/callback");
-
         const url = `${SUPABASE_URL}/auth/v1/authorize?provider=${provider}&redirect_to=${REDIRECT_URL}`;
-        console.log('@@url', url)
-        window.open(url, "_blank"); // opens OAuth in new tab
+        window.open(url, "_blank");
     };
-
-    // const handleOAuthLogin = async (provider: "google" | "azure") => {
-    //     const supabase = await createClient();
-    //     setIsLoading(provider === "google" ? "google" : "microsoft");
-
-    //     try {
-    //         const { error } = await supabase.auth.signInWithOAuth({
-    //             provider,
-    //             options: {
-    //                 redirectTo: "https://itx-components.vercel.app/auth/callback",
-    //             },
-    //         });
-    //         if (error) throw error;
-    //     } catch (error) {
-    //         console.error(error);
-    //         setIsLoading(null);
-    //     }
-    // };
 
     return (
         <div dir="rtl" className="w-full flex flex-col gap-3">
