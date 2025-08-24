@@ -1,5 +1,6 @@
 import AuthProviders from "./components/AuthProviders";
 
+
 export default function AuthPage() {
     return (
         <main className="h-full flex flex-col items-center gap-4 p-6 w-full">
