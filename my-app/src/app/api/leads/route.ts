@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+
 // import nodemailer from "nodemailer";
 
 export async function POST(req: Request) {
@@ -32,6 +33,7 @@ export async function POST(req: Request) {
     //     <p><b>Message:</b> ${message}</p>
     //   `,
     // });
+
 
     return NextResponse.json({ success: true });
   } catch (error) {
