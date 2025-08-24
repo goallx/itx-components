@@ -5,8 +5,11 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
     const body = await req.json();
+    const { searchParams } = new URL(req.url);
+    const course = searchParams.get("course");
     // const { name, email, message } = await req.json();
     console.log("@@body", body);
+    console.log("@@course", course);
 
     // const transporter = nodemailer.createTransport({
     //   host: "smtp.sendgrid.net",
@@ -33,7 +36,6 @@ export async function POST(req: Request) {
     //     <p><b>Message:</b> ${message}</p>
     //   `,
     // });
-
 
     return NextResponse.json({ success: true });
   } catch (error) {
