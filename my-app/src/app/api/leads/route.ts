@@ -1,17 +1,33 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
+import { createClient } from "@supabase/supabase-js";
+
+export const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
 export async function POST(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+    const course = searchParams.get("course");
+
     const body = await req.json();
     const { name, email, phone } = body;
 
-    // Validate fields
     if (!name || !email || !phone) {
       return NextResponse.json(
         { success: false, error: "Missing required fields" },
         { status: 400 }
       );
+    }
+
+    const { error } = await supabaseAdmin
+      .from("leads")
+      .insert([{ name, email, phone, course }]);
+    if (error) {
+      console.error("Insert lead error:", error);
     }
 
     const transporter = nodemailer.createTransport({
@@ -28,12 +44,12 @@ export async function POST(req: Request) {
       <p><strong>Name:</strong> ${name}</p>
       <p><strong>Email:</strong> ${email}</p>
       <p><strong>Phone:</strong> ${phone}</p>
+      <p><strong>Course:</strong> ${course || ""}</p>
     `;
 
     const mailOptions = {
       from: process.env.SENDGRID_FROM_EMAIL!,
-      // to: process.env.SENDGRID_FROM_EMAIL!,
-      to: "wael.haddad96@gmail.com",
+      to: process.env.SENDGRID_FROM_EMAIL!,
       subject: `New Lead: ${name} - ${phone}`,
       html,
     };
