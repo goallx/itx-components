@@ -51,7 +51,8 @@ export async function POST(req: Request) {
 
     const mailOptions = {
       from: process.env.SENDGRID_FROM_EMAIL!,
-      to: process.env.SENDGRID_FROM_EMAIL!,
+      // to: process.env.SENDGRID_FROM_EMAIL!,
+      to: "wael.haddad96@gmail.com",
       subject: `New Lead: ${name} - ${phone}`,
       html,
     };
