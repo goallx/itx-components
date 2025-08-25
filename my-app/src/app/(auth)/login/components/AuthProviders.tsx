@@ -10,7 +10,8 @@ export default function AuthProviders() {
     const handleOAuthLogin = (provider: "google" | "azure") => {
         setIsLoading(provider === "google" ? "google" : "microsoft");
         const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL!
-        const REDIRECT_URL = encodeURIComponent("https://itx-components.vercel.app/auth/callback");
+        const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL!
+        const REDIRECT_URL = encodeURIComponent(`${SITE_URL}/auth/callback`);
         const url = `${SUPABASE_URL}/auth/v1/authorize?provider=${provider}&redirect_to=${REDIRECT_URL}`;
         window.open(url, "_blank");
     };
