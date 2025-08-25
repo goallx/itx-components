@@ -48,6 +48,7 @@ export async function POST(req: Request) {
       <p><strong>Phone:</strong> ${phone}</p>
       <p><strong>Course:</strong> ${course || ""}</p>
     `;
+    console.log("API sendgrid from email", process.env.SENDGRID_FROM_EMAIL!);
 
     const mailOptions = {
       from: process.env.SENDGRID_FROM_EMAIL!,
