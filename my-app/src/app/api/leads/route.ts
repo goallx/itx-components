@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     const course = searchParams.get("course");
     const body = await req.json();
     console.log("@@", body);
-    const { name, email, phone } = body;
+    const { الاسم:name, الايميل:email, phone } = body;
 
     if (!name || !email || !phone) {
       return NextResponse.json(
