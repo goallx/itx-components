@@ -3,11 +3,6 @@ import nodemailer from "nodemailer";
 
 import { createClient } from "@supabase/supabase-js";
 
-export const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
-
 export async function POST(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -22,6 +17,11 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+
+    const supabaseAdmin = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
 
     const { error } = await supabaseAdmin
       .from("leads")
