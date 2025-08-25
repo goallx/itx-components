@@ -7,8 +7,8 @@ export async function POST(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const course = searchParams.get("course");
-
     const body = await req.json();
+    console.log("@@", body);
     const { name, email, phone } = body;
 
     if (!name || !email || !phone) {
@@ -52,7 +52,6 @@ export async function POST(req: Request) {
 
     const mailOptions = {
       from: process.env.SENDGRID_FROM_EMAIL!,
-      // to: process.env.SENDGRID_FROM_EMAIL!,
       to: "wael.haddad96@gmail.com",
       subject: `New Lead: ${name} - ${phone}`,
       html,
