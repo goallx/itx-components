@@ -15,14 +15,13 @@ export default function AuthCallback() {
             const supabase = await createClient();
 
             const { data, error } = await supabase.auth.exchangeCodeForSession(window.location.href);
-
+            console.log('@@data', data)
             if (error) {
                 console.error("OAuth error:", error.message);
                 return;
             }
 
             if (data?.session) {
-                // ✅ user is signed in now
                 router.replace("/after-log-in");
             }
         };
