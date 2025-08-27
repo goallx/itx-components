@@ -16,17 +16,19 @@ export default function AuthCallback() {
         const handleRedirect = async () => {
             const supabase = await createClient();
             try {
-                supabase.auth.onAuthStateChange(async (event) => {
-                    if (!mounted) return;
-                    console.log('@@event', event)
-                    if (event === "SIGNED_IN")
-                        router.push('/after-log-in')
-                });
+                supabase.auth.onAuthStateChange((event, session) => {
+                    console.log("@@event", event)
+                    if (event === "INITIAL_SESSION" && session) {
+                        router.push("/after-log-in")
+                    }
+                    if (event === "SIGNED_IN") {
+                        router.push("/after-log-in")
+                    }
+                })
 
             } catch (err) {
                 console.log('@@err', err)
                 if (mounted) {
-                    // setError(err instanceof Error ? err.message : "Authentication failed");
                     setLoading(false);
                 }
             }
