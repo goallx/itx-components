@@ -18,6 +18,7 @@ export default function AuthCallback() {
             try {
                 supabase.auth.onAuthStateChange((event, session) => {
                     console.log("@@event", event)
+                    console.log("@@session", session)
                     if (event === "INITIAL_SESSION" && session) {
                         router.push("/after-log-in")
                     }
