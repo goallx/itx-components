@@ -20,7 +20,7 @@ export default function AuthCallback() {
                     if (!mounted) return;
                     console.log('@@event', event)
                     if (event === "SIGNED_IN")
-                        router.replace('/dashboard')
+                        router.push('/after-log-in')
                 });
 
             } catch (err) {
