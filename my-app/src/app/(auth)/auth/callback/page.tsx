@@ -11,35 +11,23 @@ export default function AuthCallback() {
     // const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        let mounted = true;
-
-        const handleRedirect = async () => {
+        const handleOAuthCallback = async () => {
             const supabase = await createClient();
-            try {
-                supabase.auth.onAuthStateChange((event, session) => {
-                    console.log("@@event", event)
-                    console.log("@@session", session)
-                    if (event === "INITIAL_SESSION" && session) {
-                        router.push("/after-log-in")
-                    }
-                    if (event === "SIGNED_IN") {
-                        router.push("/after-log-in")
-                    }
-                })
 
-            } catch (err) {
-                console.log('@@err', err)
-                if (mounted) {
-                    setLoading(false);
-                }
+            const { data, error } = await supabase.auth.exchangeCodeForSession(window.location.href);
+
+            if (error) {
+                console.error("OAuth error:", error.message);
+                return;
+            }
+
+            if (data?.session) {
+                // ✅ user is signed in now
+                router.replace("/after-log-in");
             }
         };
 
-        handleRedirect();
-
-        return () => {
-            mounted = false;
-        };
+        handleOAuthCallback();
     }, [router]);
 
     if (loading) {
