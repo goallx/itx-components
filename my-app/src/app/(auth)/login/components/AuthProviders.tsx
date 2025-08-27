@@ -21,7 +21,7 @@ export default function AuthProviders() {
             <Button
                 onClick={() => handleOAuthLogin("google")}
                 disabled={isLoading === "google"}
-                className="w-full h-12 bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 rounded-md flex items-center justify-center gap-3 transition-colors duration-200 shadow-sm hover:shadow-md"
+                className="w-full h-12 bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 rounded-[30px] flex items-center justify-center gap-3 transition-colors duration-200 shadow-sm hover:shadow-md"
             >
                 <svg className="w-5 h-5" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
                     <path fill="#EA4335" d="M24 9.5c3.9 0 7.1 1.4 9.2 3.6l6.9-6.9C35.4 2.6 30.2 0 24 0 14.6 0 6.8 5.8 2.8 14.1l8.1 6.3C12.5 14.6 17.8 9.5 24 9.5z" />
@@ -41,7 +41,7 @@ export default function AuthProviders() {
             <Button
                 onClick={() => handleOAuthLogin("azure")}
                 disabled={isLoading === "microsoft"}
-                className="w-full h-12 bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 rounded-md flex items-center justify-center gap-3 transition-colors duration-200 shadow-sm hover:shadow-md"
+                className="w-full h-12 bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 rounded-[30px] flex items-center justify-center gap-3 transition-colors duration-200 shadow-sm hover:shadow-md"
             >
                 <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 23 23">
                     <rect x="1" y="1" width="10" height="10" fill="#F25022" />
