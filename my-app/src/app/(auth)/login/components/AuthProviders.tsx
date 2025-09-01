@@ -1,6 +1,7 @@
 'use client'
 
 import { Button } from "@/components/ui/button";
+import { createClient } from "@/utils/supabase/client";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
@@ -17,10 +18,28 @@ export default function AuthProviders() {
         window.open(url, "_blank");
     };
 
+    const handleGoogleLogin = async () => {
+        const supabase = await createClient()
+        try {
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: "google",
+                options: {
+                    // redirectTo: `${window.location.origin}/auth/callback`,
+                    redirectTo: `https://itx-components.vercel.app/auth/callback`,
+                },
+            })
+            if (error) throw error
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+
     return (
         <div dir="rtl" className="w-full flex flex-col gap-3">
             <Button
-                onClick={() => handleOAuthLogin("google")}
+                // onClick={() => handleOAuthLogin("google")}
+                onClick={handleGoogleLogin}
                 disabled={isLoading === "google"}
                 className="w-full h-12 bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 rounded-[30px] flex items-center justify-center gap-3 transition-colors duration-200 shadow-sm hover:shadow-md"
             >
