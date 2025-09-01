@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 
 import { createClient } from "@supabase/supabase-js";
+import { getZohoAccessToken } from "@/lib/zoho";
 
 export async function POST(req: Request) {
   try {
@@ -17,6 +18,32 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
+
+    const [firstName, lastName] = name.split(" ");
+
+    const { access_token } = await getZohoAccessToken();
+
+    const res = await fetch("https://www.zohoapis.com/crm/v2/Leads", {
+      method: "POST",
+      headers: {
+        Authorization: `Zoho-oauthtoken ${access_token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        data: [
+          {
+            Last_Name: firstName,
+            First_Name: lastName,
+            Email: email,
+            Company: "",
+            Phone: phone,
+          },
+        ],
+      }),
+    });
+
+    const data = await res.json();
+    console.log("@@from zoho crm", data);
 
     const supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
