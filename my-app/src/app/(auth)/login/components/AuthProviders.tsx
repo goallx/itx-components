@@ -14,7 +14,6 @@ export default function AuthProviders() {
         const REDIRECT_URL = encodeURIComponent(`${SITE_URL}/auth/callback`);
 
         const url = `${SUPABASE_URL}/auth/v1/authorize?provider=${provider}&redirect_to=${REDIRECT_URL}`;
-        console.log('@@url', url)
         window.open(url, "_blank");
     };
 

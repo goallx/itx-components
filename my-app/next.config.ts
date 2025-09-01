@@ -1,3 +1,4 @@
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   async headers() {
     return [
@@ -12,5 +13,10 @@ const nextConfig = {
       },
     ];
   },
+
+  images: {
+    domains: ["huxaeppwmquuhpeibzye.supabase.co"],
+  },
 };
+
 export default nextConfig;
