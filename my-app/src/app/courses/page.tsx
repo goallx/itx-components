@@ -31,7 +31,7 @@ export default function CoursesPage() {
                 setLoading(false);
                 return;
             }
-            
+
             const { data: subscriptions } = await supabase
                 .from("user_courses")
                 .select("course_id")
@@ -53,8 +53,5 @@ export default function CoursesPage() {
 
     if (loading) return <p className="text-center py-20">Loading courses...</p>;
 
-    if (!user)
-
-
-        return <CoursesSection courses={courses} />;
+    return <CoursesSection courses={courses} />;
 }
