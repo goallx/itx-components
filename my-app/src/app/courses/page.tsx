@@ -18,11 +18,12 @@ export default function CoursesPage() {
             // 1️⃣ Get user from localStorage
             const sessionStr = localStorage.getItem("supabaseUser");
             let userId: string | null = null;
-
+            console.log('@@sessionsr', sessionStr)
             if (sessionStr) {
                 try {
                     const session = JSON.parse(sessionStr);
                     userId = session.id
+
                 } catch (err) {
                     console.error("Error parsing Supabase session from localStorage", err);
                 }
@@ -34,6 +35,7 @@ export default function CoursesPage() {
                 return;
             }
 
+            console.log('@@userId', userId)
             setUser({ id: userId });
 
             // 2️⃣ Fetch all courses
