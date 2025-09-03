@@ -3,6 +3,7 @@
 import { createClient } from '@/utils/supabase/client'
 import { useState, useEffect } from 'react'
 
+
 export default function SimplifiedSupabaseAuth() {
     const [user, setUser] = useState<any>(null)
     const [loading, setLoading] = useState(true)
@@ -14,6 +15,7 @@ export default function SimplifiedSupabaseAuth() {
             return
         }
 
+        // Listen for messages from parent (Framer)
         const handleMessage = (event: any) => {
             if (event.data.type === 'TRIGGER_LOGOUT') {
                 handleLogout()
@@ -28,6 +30,7 @@ export default function SimplifiedSupabaseAuth() {
             setUser(session?.user ?? null)
             setLoading(false)
 
+            // Send message to parent window (Framer site)
             if (window.parent !== window) {
                 window.parent.postMessage({
                     type: 'AUTH_STATE_CHANGE',
@@ -37,6 +40,7 @@ export default function SimplifiedSupabaseAuth() {
             }
         })
 
+        // Get initial session
         supabase.auth.getSession().then(({ data: { session } }) => {
             setUser(session?.user ?? null)
             setLoading(false)
@@ -51,11 +55,13 @@ export default function SimplifiedSupabaseAuth() {
     const handleGoogleLogin = async () => {
         if (!supabase) return
 
+        // Determine the correct redirect URL
         const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         const redirectUrl = isLocalhost
             ? `${window.location.origin}/api/auth/callback`
             : 'https://itx-components.vercel.app/api/auth/callback';
 
+        // Open Google auth in a new tab/window
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
@@ -73,6 +79,8 @@ export default function SimplifiedSupabaseAuth() {
         }
 
         if (data?.url) {
+            localStorage.setItem('supabase_provider', 'google')
+
             const loginWindow = window.open(
                 data.url,
                 'supabaseAuth',
@@ -83,6 +91,7 @@ export default function SimplifiedSupabaseAuth() {
                 const checkWindowClosed = setInterval(() => {
                     if (loginWindow.closed) {
                         clearInterval(checkWindowClosed)
+                        // Refresh user data
                         supabase.auth.getUser().then(({ data: { user } }) => {
                             setUser(user)
                         })
@@ -98,6 +107,7 @@ export default function SimplifiedSupabaseAuth() {
     const handleLogout = async () => {
         if (!supabase) return
         await supabase.auth.signOut()
+        localStorage.removeItem('supabase_provider')
     }
 
     if (!supabase) {
