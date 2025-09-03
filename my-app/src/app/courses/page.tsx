@@ -30,7 +30,7 @@ export default function CoursesPage() {
 
             if (!userId) {
                 // redirect to sign-in if no user
-                router.replace("/sign-in");
+                // router.replace("/sign-in");
                 return;
             }
 
