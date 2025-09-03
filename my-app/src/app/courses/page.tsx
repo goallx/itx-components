@@ -15,6 +15,8 @@ export default function CoursesPage() {
         const supabase = createClient();
 
         async function fetchData() {
+            const { data } = await supabase.auth.getSession()
+            console.log('@@data', data)
             // 1️⃣ Get user from localStorage
             const sessionStr = localStorage.getItem("supabaseUser");
             let userId: string | null = null;
