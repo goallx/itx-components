@@ -9,34 +9,38 @@ export default function CoursesPage() {
     const [courses, setCourses] = useState<(ICourse & { isSubscribed: boolean })[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const supabase = createClient();
-
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
-            const allowedOrigins = ["https://framer.com", "https://itx-academy.com"]
-            if (!allowedOrigins.includes(event.origin)) return
-            const { type, user: incomingUser } = event.data || {}
-            console.log('@@user', incomingUser)
+            // Only accept messages from Framer
+            const allowedOrigins = ["https://itx-academy.com"];
+            if (!allowedOrigins.includes(event.origin)) return;
+
+            const { type, user: incomingUser } = event.data || {};
             if (type === "AUTH_STATE_CHANGE" && incomingUser) {
-                setUser(incomingUser)
-                fetchCourses(incomingUser.id)
+                setUser(incomingUser);
+                fetchCourses(incomingUser.id);
             }
-        }
+        };
 
-        window.addEventListener("message", handleMessage)
-        return () => window.removeEventListener("message", handleMessage)
-    }, [])
+        window.addEventListener("message", handleMessage);
 
+        // Notify parent that iframe is ready
+        window.parent.postMessage({ type: "READY_FOR_USER" }, "https://itx-academy.com");
+
+        return () => window.removeEventListener("message", handleMessage);
+    }, []);
 
     const fetchCourses = async (userId: string) => {
-        // 1️⃣ Fetch all courses
+        const supabase = createClient();
+
+        // Fetch courses
         const { data: coursesData } = await supabase.from("courses").select("*");
         if (!coursesData) {
             setLoading(false);
             return;
         }
 
-        // 2️⃣ Fetch user subscriptions
+        // Fetch user subscriptions
         const { data: subscriptions } = await supabase
             .from("user_courses")
             .select("course_id")
@@ -44,7 +48,6 @@ export default function CoursesPage() {
 
         const subscribedCourseIds = subscriptions?.map(s => s.course_id) || [];
 
-        // 3️⃣ Map courses with subscription info
         const mapped = coursesData.map(course => ({
             ...course,
             isSubscribed: subscribedCourseIds.includes(course.id),
