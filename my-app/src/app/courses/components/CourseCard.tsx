@@ -20,7 +20,7 @@ export default function CourseCard({
                 <h2 className="text-2xl font-bold mb-4">{name}</h2>
                 <p className="text-gray-700 mb-6">{description}</p>
                 <button
-                    onClick={() => isSubscribed && router.push(redirect_url)}
+                    onClick={() => isSubscribed && router.push("https://itx-academy.com" + redirect_url)}
                     className={`px-6 py-2 rounded-full font-semibold transition ${isSubscribed
                         ? "bg-blue-600 text-white hover:opacity-90"
                         : "bg-gray-300 text-gray-700 cursor-not-allowed"
