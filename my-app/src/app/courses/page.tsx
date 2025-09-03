@@ -13,10 +13,10 @@ export default function CoursesPage() {
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
-            const allowedOrigins = ["https://framer.com"]
+            const allowedOrigins = ["https://framer.com", "https://itx-academy.com"]
             if (!allowedOrigins.includes(event.origin)) return
-
             const { type, user: incomingUser } = event.data || {}
+            console.log('@@user', incomingUser)
             if (type === "AUTH_STATE_CHANGE" && incomingUser) {
                 setUser(incomingUser)
                 fetchCourses(incomingUser.id)
