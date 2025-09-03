@@ -53,15 +53,10 @@ export default function SimplifiedSupabaseAuth() {
     }, [supabase])
 
     const handleGoogleLogin = async () => {
-        if (!supabase) return
+        if (!supabase) return;
 
-        // Determine the correct redirect URL
-        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-        const redirectUrl = isLocalhost
-            ? `${window.location.origin}/auth/callback`
-            : 'https://itx-components.vercel.app/auth/callback';
+        const redirectUrl = 'https://itx-academy.com/after-log-in';
 
-        // Open Google auth in a new tab/window
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
@@ -69,40 +64,20 @@ export default function SimplifiedSupabaseAuth() {
                 queryParams: {
                     access_type: 'offline',
                     prompt: 'consent',
-                }
+                },
             },
-        })
+        });
 
         if (error) {
-            console.error('Error signing in with Google:', error)
-            return
+            console.error('Error signing in with Google:', error);
+            return;
         }
 
         if (data?.url) {
-            localStorage.setItem('supabase_provider', 'google')
-
-            const loginWindow = window.open(
-                data.url,
-                'supabaseAuth',
-                'width=500,height=600'
-            )
-
-            if (loginWindow) {
-                const checkWindowClosed = setInterval(() => {
-                    if (loginWindow.closed) {
-                        clearInterval(checkWindowClosed)
-                        // Refresh user data
-                        supabase.auth.getUser().then(({ data: { user } }) => {
-                            setUser(user)
-                        })
-                    }
-                }, 500)
-            } else {
-                console.error('Popup window was blocked by the browser')
-                alert('Please allow popups for this site to sign in with Google')
-            }
+            window.location.href = data.url;
         }
-    }
+    };
+
 
     const handleLogout = async () => {
         if (!supabase) return
