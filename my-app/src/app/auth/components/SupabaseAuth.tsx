@@ -58,8 +58,8 @@ export default function SimplifiedSupabaseAuth() {
         // Determine the correct redirect URL
         const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
         const redirectUrl = isLocalhost
-            ? `${window.location.origin}/api/auth/callback`
-            : 'https://itx-components.vercel.app/api/auth/callback';
+            ? `${window.location.origin}/auth/callback`
+            : 'https://itx-components.vercel.app/auth/callback';
 
         // Open Google auth in a new tab/window
         const { data, error } = await supabase.auth.signInWithOAuth({
