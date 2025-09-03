@@ -55,7 +55,7 @@ export default function SimplifiedSupabaseAuth() {
     const handleGoogleLogin = async () => {
         if (!supabase) return;
 
-        const redirectUrl = 'https://itx-academy.com/after-log-in';
+        const redirectUrl = 'https://itx-components.vercel.app/auth/callback';
 
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
