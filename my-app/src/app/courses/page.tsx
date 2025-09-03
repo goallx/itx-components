@@ -1,41 +1,60 @@
-import { createClient } from "@/utils/supabase/server";
+"use client";
+
+import React, { useEffect, useState } from "react";
+import { createClient } from "@/utils/supabase/client";
 import CoursesSection, { ICourse } from "./components/Courses";
+import { useRouter } from "next/navigation";
 
-export default async function CoursesPage() {
-    const supabase = await createClient();
+export default function CoursesPage() {
+    const [user, setUser] = useState<any>(null);
+    const [courses, setCourses] = useState<(ICourse & { isSubscribed: boolean })[]>([]);
+    const [loading, setLoading] = useState(true);
+    const router = useRouter();
 
-    // Get logged-in user
-    const { data: { session }, error: userErr } = await supabase.auth.getSession();
-    console.log('@@user', session)
-    if (userErr || !session) {
-        return (
-            <div className="w-full h-screen flex items-center justify-center">
-                <p className="text-lg text-gray-700">Please log in to view courses.</p>
-            </div>
-        );
-    }
+    useEffect(() => {
+        const supabase = createClient();
 
-    // Fetch courses
-    const { data: coursesData, error: coursesErr } = await supabase
-        .from("courses")
-        .select("*");
-    if (coursesErr || !coursesData) return <div>Error loading courses.</div>;
-    console.log('@@data courses', coursesData)
-    // Fetch user subscriptions
-    const { data: subscriptions } = await supabase
-        .from("user_courses")
-        .select("course_id")
-        .eq("user_id", session.user.id);
+        async function fetchData() {
+            const {
+                data: { user },
+            } = await supabase.auth.getUser();
+            console.log("@@user", user)
+            if (!user) {
+                router.replace("/sign-in");
+                return;
+            }
 
-    const subscribedCourseIds = subscriptions?.map(s => s.course_id) || [];
+            setUser(user);
 
-    // Map courses with subscription info
-    const courses: (ICourse & { isSubscribed: boolean })[] = coursesData.map(
-        course => ({
-            ...course,
-            isSubscribed: subscribedCourseIds.includes(course.id),
-        })
-    );
+            const { data: coursesData } = await supabase.from("courses").select("*");
+            if (!coursesData) {
+                setLoading(false);
+                return;
+            }
+            
+            const { data: subscriptions } = await supabase
+                .from("user_courses")
+                .select("course_id")
+                .eq("user_id", user.id);
 
-    return <CoursesSection courses={courses} />;
+            const subscribedCourseIds = subscriptions?.map(s => s.course_id) || [];
+
+            const mapped = coursesData.map(course => ({
+                ...course,
+                isSubscribed: subscribedCourseIds.includes(course.id),
+            }));
+
+            setCourses(mapped);
+            setLoading(false);
+        }
+
+        fetchData();
+    }, []);
+
+    if (loading) return <p className="text-center py-20">Loading courses...</p>;
+
+    if (!user)
+
+
+        return <CoursesSection courses={courses} />;
 }
