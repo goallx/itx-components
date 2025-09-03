@@ -45,7 +45,7 @@ export default function SupabaseAuth() {
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: `${window.location.origin}/api/auth/callback`,
+                redirectTo: `https://itx-components.vercel.app/api/auth/callback`,
             },
         })
 
@@ -53,7 +53,7 @@ export default function SupabaseAuth() {
             console.error('Error signing in with Google:', error)
             return
         }
-
+        console.log('@@data', data)
         if (data?.url) {
             const loginWindow = window.open(
                 data.url,
