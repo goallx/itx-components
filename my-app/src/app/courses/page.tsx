@@ -1,42 +1,40 @@
 import { createClient } from "@/utils/supabase/server";
-import CourseCardSkeleton from "./loading";
 import CoursesSection, { ICourse } from "./components/Courses";
-import { redirect } from "next/navigation";
 
 export default async function CoursesPage() {
     const supabase = await createClient();
-    const { data: { session }, error: userError } = await supabase.auth.getSession()
 
-    // if (!session) {
-    //     redirect('/sign-in')
-    // }
-
-    const { data, error } = await supabase.from("courses").select("*");
-
-    if (error) {
+    // Get logged-in user
+    const { data: { user }, error: userErr } = await supabase.auth.getUser();
+    if (userErr || !user) {
         return (
-            <section className="bg-gray-50 py-16 px-4 md:px-16 w-full min-h-[80vh] flex items-center justify-center">
-                <p className="text-red-500 text-lg">Failed to load courses. Please try again later.</p>
-            </section>
+            <div className="w-full h-screen flex items-center justify-center">
+                <p className="text-lg text-gray-700">Please log in to view courses.</p>
+            </div>
         );
     }
 
-    if (!data || data.length === 0) {
-        return (
-            <section className="bg-gray-50 py-16 px-4 md:px-16 w-full">
-                <div className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-                    <CourseCardSkeleton />
-                    <CourseCardSkeleton />
-                    <CourseCardSkeleton />
-                    <CourseCardSkeleton />
-                </div>
-            </section>
-        );
-    }
+    // Fetch courses
+    const { data: coursesData, error: coursesErr } = await supabase
+        .from("courses")
+        .select("*");
+    if (coursesErr || !coursesData) return <div>Error loading courses.</div>;
 
-    return (
-        <section className="py-16 px-4 md:px-16 w-full h-auto">
-            <CoursesSection courses={data as ICourse[]} />
-        </section>
+    // Fetch user subscriptions
+    const { data: subscriptions } = await supabase
+        .from("user_courses")
+        .select("course_id")
+        .eq("user_id", user?.id);
+
+    const subscribedCourseIds = subscriptions?.map(s => s.course_id) || [];
+
+    // Map courses with subscription info
+    const courses: (ICourse & { isSubscribed: boolean })[] = coursesData.map(
+        course => ({
+            ...course,
+            isSubscribed: subscribedCourseIds.includes(course.id),
+        })
     );
+
+    return <CoursesSection courses={courses} />;
 }
