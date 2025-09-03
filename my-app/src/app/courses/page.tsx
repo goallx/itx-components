@@ -13,8 +13,7 @@ export default function CoursesPage() {
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
-            // Only accept messages from Framer parent
-            const allowedOrigins = ["https://framer.com"];
+            const allowedOrigins = ["https://framer.com", "https://itx-academy.com"];
             if (!allowedOrigins.includes(event.origin)) return;
 
             const { type, user: incomingUser } = event.data || {};
