@@ -3,9 +3,9 @@
 import { createClient } from '@/utils/supabase/client'
 import { useState, useEffect } from 'react'
 
-export default function SupabaseAuth() {
+export default function SimplifiedSupabaseAuth() {
     const [user, setUser] = useState<any>(null)
-    const [loading, setLoading] = useState<boolean>(true)
+    const [loading, setLoading] = useState(true)
     const supabase = createClient()
 
     useEffect(() => {
@@ -13,6 +13,14 @@ export default function SupabaseAuth() {
             setLoading(false)
             return
         }
+
+        const handleMessage = (event: any) => {
+            if (event.data.type === 'TRIGGER_LOGOUT') {
+                handleLogout()
+            }
+        }
+
+        window.addEventListener('message', handleMessage)
 
         const {
             data: { subscription },
@@ -29,23 +37,33 @@ export default function SupabaseAuth() {
             }
         })
 
-        // Get initial session
         supabase.auth.getSession().then(({ data: { session } }) => {
             setUser(session?.user ?? null)
             setLoading(false)
         })
 
-        return () => subscription.unsubscribe()
+        return () => {
+            window.removeEventListener('message', handleMessage)
+            subscription.unsubscribe()
+        }
     }, [supabase])
-
 
     const handleGoogleLogin = async () => {
         if (!supabase) return
 
+        const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        const redirectUrl = isLocalhost
+            ? `${window.location.origin}/api/auth/callback`
+            : 'https://itx-components.vercel.app/api/auth/callback';
+
         const { data, error } = await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
-                redirectTo: `https://itx-components.vercel.app/api/auth/callback`,
+                redirectTo: redirectUrl,
+                queryParams: {
+                    access_type: 'offline',
+                    prompt: 'consent',
+                }
             },
         })
 
@@ -53,7 +71,7 @@ export default function SupabaseAuth() {
             console.error('Error signing in with Google:', error)
             return
         }
-        console.log('@@data', data)
+
         if (data?.url) {
             const loginWindow = window.open(
                 data.url,
@@ -61,14 +79,19 @@ export default function SupabaseAuth() {
                 'width=500,height=600'
             )
 
-            const checkWindowClosed = setInterval(() => {
-                if (loginWindow?.closed) {
-                    clearInterval(checkWindowClosed)
-                    supabase.auth.getUser().then(({ data: { user } }) => {
-                        setUser(user)
-                    })
-                }
-            }, 500)
+            if (loginWindow) {
+                const checkWindowClosed = setInterval(() => {
+                    if (loginWindow.closed) {
+                        clearInterval(checkWindowClosed)
+                        supabase.auth.getUser().then(({ data: { user } }) => {
+                            setUser(user)
+                        })
+                    }
+                }, 500)
+            } else {
+                console.error('Popup window was blocked by the browser')
+                alert('Please allow popups for this site to sign in with Google')
+            }
         }
     }
 
