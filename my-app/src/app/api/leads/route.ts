@@ -43,7 +43,6 @@ export async function POST(req: Request) {
     });
 
     const data = await res.json();
-    console.log("@@from zoho crm", data);
 
     const supabaseAdmin = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
