@@ -69,12 +69,32 @@ export default function SimplifiedSupabaseAuth() {
         });
 
         if (error) {
-            console.error('Error signing in with Google:', error);
+            console.error('Google Sign-in error:', error);
             return;
         }
 
         if (data?.url) {
-            window.location.href = data.url;
+            // Open OAuth in a popup window
+            const loginWindow = window.open(
+                data.url,
+                'SupabaseAuth',
+                'width=500,height=600'
+            );
+
+            if (!loginWindow) {
+                alert('Popup blocked. Please allow popups for this site.');
+                return;
+            }
+
+            // Poll to detect when the popup is closed
+            const checkClosed = setInterval(async () => {
+                if (loginWindow.closed) {
+                    clearInterval(checkClosed);
+                    // Refresh session
+                    const { data: { session } } = await supabase.auth.getSession();
+                    console.log('User after login:', session?.user);
+                }
+            }, 500);
         }
     };
 
