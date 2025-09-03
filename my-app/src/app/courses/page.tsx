@@ -13,30 +13,20 @@ export default function CoursesPage() {
 
     useEffect(() => {
         const handleMessage = (event: MessageEvent) => {
-            const allowedOrigins = ["https://framer.com", "https://itx-academy.com"];
-            if (!allowedOrigins.includes(event.origin)) return;
+            const allowedOrigins = ["https://framer.com"]
+            if (!allowedOrigins.includes(event.origin)) return
 
-            const { type, user: incomingUser } = event.data || {};
+            const { type, user: incomingUser } = event.data || {}
             if (type === "AUTH_STATE_CHANGE" && incomingUser) {
-                setUser(incomingUser);
-                fetchCourses(incomingUser.id);
+                setUser(incomingUser)
+                fetchCourses(incomingUser.id)
             }
-        };
+        }
 
-        window.addEventListener("message", handleMessage);
+        window.addEventListener("message", handleMessage)
+        return () => window.removeEventListener("message", handleMessage)
+    }, [])
 
-        // Optional: fallback if iframe opened directly
-        supabase.auth.getSession().then(({ data }) => {
-            if (data?.session?.user) {
-                setUser(data.session.user);
-                fetchCourses(data.session.user.id);
-            } else {
-                setLoading(false);
-            }
-        });
-
-        return () => window.removeEventListener("message", handleMessage);
-    }, []);
 
     const fetchCourses = async (userId: string) => {
         // 1️⃣ Fetch all courses
