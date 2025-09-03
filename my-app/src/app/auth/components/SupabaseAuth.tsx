@@ -53,7 +53,7 @@ export default function SupabaseAuth() {
             console.error('Error signing in with Google:', error)
             return
         }
-
+        console.log('@@data', data)
         if (data?.url) {
             const loginWindow = window.open(
                 data.url,
