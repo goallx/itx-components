@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
 import CoursesSection, { ICourse } from "./components/Courses";
+import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
 export default function CoursesPage() {
@@ -15,30 +15,43 @@ export default function CoursesPage() {
         const supabase = createClient();
 
         async function fetchData() {
-            const {
-                data: { user },
-            } = await supabase.auth.getUser();
-            console.log("@@user", user)
-            if (!user) {
-                // router.replace("/sign-in");
+            // 1️⃣ Get user from localStorage
+            const sessionStr = localStorage.getItem("supabaseUser");
+            let userId: string | null = null;
+
+            if (sessionStr) {
+                try {
+                    const session = JSON.parse(sessionStr);
+                    userId = session.id
+                } catch (err) {
+                    console.error("Error parsing Supabase session from localStorage", err);
+                }
+            }
+
+            if (!userId) {
+                // redirect to sign-in if no user
+                router.replace("/sign-in");
                 return;
             }
 
-            setUser(user);
+            setUser({ id: userId });
 
+            // 2️⃣ Fetch all courses
             const { data: coursesData } = await supabase.from("courses").select("*");
             if (!coursesData) {
                 setLoading(false);
                 return;
             }
 
+            // 3️⃣ Fetch user subscriptions
             const { data: subscriptions } = await supabase
                 .from("user_courses")
                 .select("course_id")
-                .eq("user_id", user.id);
+                .eq("user_id", userId);
 
             const subscribedCourseIds = subscriptions?.map(s => s.course_id) || [];
 
+            // 4️⃣ Map courses with subscription info
             const mapped = coursesData.map(course => ({
                 ...course,
                 isSubscribed: subscribedCourseIds.includes(course.id),
@@ -49,7 +62,7 @@ export default function CoursesPage() {
         }
 
         fetchData();
-    }, []);
+    }, [router]);
 
     if (loading) return <p className="text-center py-20">Loading courses...</p>;
 
