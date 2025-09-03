@@ -1,24 +1,34 @@
 'use client'
 
 import { createClient } from '@/utils/supabase/client'
+import { useEffect } from 'react'
 
-export default function SupabaseAuth() {
+export default function SupabaseAuthPage() {
     const supabase = createClient()
 
-    const handleGoogleLogin = async () => {
-        const redirectUrl = 'https://itx-components.vercel.app/auth/callback'
-        const { data, error } = await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: { redirectTo: redirectUrl },
-        })
-        if (error) console.error(error)
-        if (data?.url) window.location.href = data.url
-    }
+    useEffect(() => {
+        if (!supabase) return
 
-    // Expose method globally so Framer can call it
-    if (typeof window !== 'undefined') {
-        ; (window as any).supabaseGoogleLogin = handleGoogleLogin
-    }
+        const handleLogin = async () => {
+            const redirectUrl = 'https://itx-components.vercel.app/auth/callback'
 
-    return null
+            const { data, error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: { redirectTo: redirectUrl },
+            })
+
+            if (error) console.error('Login error:', error)
+            if (data?.url) window.location.href = data.url
+        }
+
+        handleLogin()
+    }, [supabase])
+
+    return (
+        <div className="flex items-center justify-center w-full h-full">
+            <div className="text-center">
+                <p>جارٍ تسجيل الدخول...</p>
+            </div>
+        </div>
+    )
 }
