@@ -5,9 +5,9 @@ export default async function CoursesPage() {
     const supabase = await createClient();
 
     // Get logged-in user
-    const { data: { user }, error: userErr } = await supabase.auth.getUser();
-    console.log('@@user', user)
-    if (userErr || !user) {
+    const { data: { session }, error: userErr } = await supabase.auth.getSession();
+    console.log('@@user', session)
+    if (userErr || !session) {
         return (
             <div className="w-full h-screen flex items-center justify-center">
                 <p className="text-lg text-gray-700">Please log in to view courses.</p>
@@ -25,7 +25,7 @@ export default async function CoursesPage() {
     const { data: subscriptions } = await supabase
         .from("user_courses")
         .select("course_id")
-        .eq("user_id", user?.id);
+        .eq("user_id", session.user.id);
 
     const subscribedCourseIds = subscriptions?.map(s => s.course_id) || [];
 
