@@ -20,7 +20,7 @@ export default function CoursesPage() {
             } = await supabase.auth.getUser();
             console.log("@@user", user)
             if (!user) {
-                router.replace("/sign-in");
+                // router.replace("/sign-in");
                 return;
             }
 
