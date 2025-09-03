@@ -86,7 +86,6 @@ export default function SimplifiedSupabaseAuth() {
                 return;
             }
 
-            // Poll to detect when the popup is closed
             const checkClosed = setInterval(async () => {
                 if (loginWindow.closed) {
                     clearInterval(checkClosed);

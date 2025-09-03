@@ -1,52 +1,42 @@
 'use client'
 
 import { useEffect } from 'react'
-import { useSearchParams } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 
 export default function AuthCallback() {
-    const searchParams = useSearchParams()
     const supabase = createClient()
 
     useEffect(() => {
         const handleAuth = async () => {
-            const code = searchParams.get('code')
-            const error = searchParams.get('error')
-            const redirectUrl = 'https://itx-academy.com/after-log-in'
-
-            if (error) {
-                console.error('OAuth error:', error)
-                window.close()
-                return
-            }
-
-            if (!code) {
-                console.error('No code in query params')
-                window.close()
-                return
-            }
-
             try {
-                // Exchange the code for session
-                const { data: { session }, error: exchangeError } =
-                    await supabase.auth.exchangeCodeForSession(code)
-
-                if (exchangeError || !session) {
-                    console.error('Error exchanging code:', exchangeError)
-                    window.close()
+                // Exchange code for session if needed
+                const { data: { session }, error } = await supabase.auth.getSession()
+                if (error) {
+                    console.error('Error getting session:', error)
+                    if (window.opener) {
+                        window.opener.postMessage({ type: 'AUTH_STATE_CHANGE', user: null }, '*')
+                    }
                     return
                 }
 
-                // Session is now set; redirect the popup to Framer after-login page
-                window.location.href = redirectUrl
+                // Send user data to parent window (Framer)
+                if (window.opener && session?.user) {
+                    window.opener.postMessage({ type: 'AUTH_STATE_CHANGE', user: session.user }, '*')
+                }
+
+                // Redirect the popup window to Framer after login
+                window.location.href = 'https://itx-academy.com/after-log-in'
             } catch (err) {
-                console.error('Auth callback failed:', err)
-                window.close()
+                console.error('Error in auth callback:', err)
+                if (window.opener) {
+                    window.opener.postMessage({ type: 'AUTH_STATE_CHANGE', user: null }, '*')
+                }
+                window.location.href = 'https://itx-academy.com/auth/error'
             }
         }
 
         handleAuth()
-    }, [searchParams, supabase])
+    }, [supabase])
 
     return <p>Signing you in...</p>
 }
