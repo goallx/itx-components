@@ -6,6 +6,7 @@ export default async function CoursesPage() {
 
     // Get logged-in user
     const { data: { user }, error: userErr } = await supabase.auth.getUser();
+    console.log('@@user', user)
     if (userErr || !user) {
         return (
             <div className="w-full h-screen flex items-center justify-center">
@@ -19,7 +20,7 @@ export default async function CoursesPage() {
         .from("courses")
         .select("*");
     if (coursesErr || !coursesData) return <div>Error loading courses.</div>;
-
+    console.log('@@data courses', coursesData)
     // Fetch user subscriptions
     const { data: subscriptions } = await supabase
         .from("user_courses")
