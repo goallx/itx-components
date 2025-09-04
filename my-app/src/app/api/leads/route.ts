@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     const { searchParams } = new URL(req.url);
     const course = searchParams.get("course");
     const body = await req.json();
-
+    console.log("@@body", body);
     const { الاسم: name, الايميل: email, "رقم الهاتف": phone } = body;
 
     if (!name || !email || !phone) {
