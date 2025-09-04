@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import CoursesSection, { ICourse } from "./components/Courses";
 import { createClient } from "@/utils/supabase/client";
+import { useSearchParams } from "next/navigation";
 
 export default function CoursesPage() {
     // const [user, setUser] = useState<any>(null);
@@ -31,34 +32,34 @@ export default function CoursesPage() {
     // }, []);
 
 
+    // useEffect(() => {
+    //     const fetchCourses = async () => {
+    //         const userRes = await fetch('https://itx-components.vercel.app/api/auth/user', {
+    //             credentials: 'include',
+    //         })
+    //         const data = await userRes.json()
+    //         console.log('@@user data', data)
+    //         setUser(data.user)
+    //     }
+    //     fetchCourses()
+    // }, [])
 
     // if (loading) return <p className="text-center py-20">Loading courses...</p>;
     // if (!user) return <p className="text-center py-20">Waiting for login...</p>;
 
-
-    const [user, setUser] = useState<any>(null)
+    const searchParams = useSearchParams();
+    const userId = searchParams.get("user");
     const [loading, setLoading] = useState<boolean>(false)
     const [courses, setCourses] = useState<(ICourse & { isSubscribed: boolean })[]>([]);
+    console.log('@@userid', userId)
 
     useEffect(() => {
-        const fetchCourses = async () => {
-            const userRes = await fetch('https://itx-components.vercel.app/api/auth/user', {
-                credentials: 'include',
-            })
-            const data = await userRes.json()
-            console.log('@@user data', data)
-            setUser(data.user)
+        if (userId) {
+            fetchCourses(userId)
         }
-        fetchCourses()
-    }, [])
+    }, [userId])
 
-    useEffect(() => {
-        if (user.id) {
-            fetchCourses()
-        }
-    }, [user])
-
-    const fetchCourses = async () => {
+    const fetchCourses = async (userId: string) => {
         setLoading(true)
         const supabase = createClient();
 
@@ -73,7 +74,7 @@ export default function CoursesPage() {
         const { data: subscriptions } = await supabase
             .from("user_courses")
             .select("course_id")
-            .eq("user_id", user.id);
+            .eq("user_id", userId);
 
         console.log('@@coures', subscriptions)
         const subscribedCourseIds = subscriptions?.map(s => s.course_id) || [];
