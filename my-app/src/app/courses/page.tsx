@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import CoursesSection, { ICourse } from "./components/Courses";
 import { createClient } from "@/utils/supabase/client";
 
-export default async function CoursesPage() {
+export default function CoursesPage() {
     // const [user, setUser] = useState<any>(null);
 
     // const [loading, setLoading] = useState(true);
