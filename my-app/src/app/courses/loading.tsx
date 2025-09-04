@@ -1,7 +1,7 @@
 export default function CourseCardSkeleton() {
     return (
-        <div className="flex flex-col md:flex-row items-center rounded-3xl shadow-lg md:mb-12 relative overflow-hidden animate-pulse py-16 px-4 md:px-16 w-full">
-            <div className="flex-1 md:pr-8 text-center md:text-left">
+        <div dir="rtl" className="flex flex-col md:flex-row items-center rounded-3xl shadow-lg md:mb-12 relative overflow-hidden animate-pulse py-16 px-4 md:px-16 w-full">
+            <div className="flex-1 md:pr-8 text-right md:text-left">
                 <div className="h-6 bg-gray-200 rounded w-2/3 mb-4"></div>
                 <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
                 <div className="h-4 bg-gray-200 rounded w-5/6 mb-6"></div>
