@@ -1,7 +1,5 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
-
-import { createClient } from "@supabase/supabase-js";
 import { getZohoAccessToken } from "@/lib/zoho";
 
 const getBodyValues = (body: any, src: string) => {
@@ -30,20 +28,18 @@ export async function POST(req: Request) {
     const leadCourse = searchParams.get("course");
     const leadSource = searchParams.get("src") || "unknown";
     const body = await req.json();
-    console.log("@@body", body);
+
     const { firstName, lastName, email, course, phoneNumber } = getBodyValues(
       body,
       leadSource
     );
-    console.log("@@values", getBodyValues(body, leadSource));
+
     if (!email || !phoneNumber) {
       return NextResponse.json(
         { success: false, error: "Missing required fields" },
         { status: 400 }
       );
     }
-
-    console.log("@@first and course", firstName, course);
 
     const { access_token } = await getZohoAccessToken();
 
@@ -56,17 +52,18 @@ export async function POST(req: Request) {
       body: JSON.stringify({
         data: [
           {
-            Last_Name: firstName,
-            First_Name: lastName,
+            Last_Name: lastName,
+            First_Name: firstName,
             Email: email,
             Company: "",
             Phone: phoneNumber,
             Lead_Source: leadSource,
-            Tag: course || leadCourse,
+            Industry: course || leadCourse,
           },
         ],
       }),
     });
+    const data = await res.json();
 
     const transporter = nodemailer.createTransport({
       host: "smtp.sendgrid.net",
