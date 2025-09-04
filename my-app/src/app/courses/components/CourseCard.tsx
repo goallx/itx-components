@@ -14,7 +14,7 @@ export default function CourseCard({
     const router = useRouter();
 
     return (
-        <div className="flex flex-col md:flex-row items-center bg-white rounded-4xl p-6 shadow-lg mb-8 md:mb-12 relative overflow-hidden">
+        <div className="flex flex-col md:flex-row items-center bg-white rounded-[50px] p-6 shadow-lg mb-8 md:mb-12 relative overflow-hidden">
             {/* Text Content */}
             <div className="flex-1 md:pr-8 text-right">
                 <h2 className="text-2xl font-bold mb-4">{name}</h2>
