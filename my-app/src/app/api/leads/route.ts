@@ -4,22 +4,46 @@ import nodemailer from "nodemailer";
 import { createClient } from "@supabase/supabase-js";
 import { getZohoAccessToken } from "@/lib/zoho";
 
+const getBodyValues = (body: any, src: string) => {
+  if (src === "site") {
+    return {
+      firstName: body["First Name"],
+      lastName: body["Last Name"],
+      phoneNumber: body["Phone Number"],
+      email: body["Email"],
+      course: body["Location"],
+    };
+  } else {
+    return {
+      firstName: body["الاسم"].split(" ")[0],
+      lastName: body["الاسم"].split(" ")[1],
+      phoneNumber: body["رقم الهاتف"],
+      email: body["الايميل"],
+      course: body["Location"],
+    };
+  }
+};
+
 export async function POST(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const course = searchParams.get("course");
+    const leadCourse = searchParams.get("course");
+    const leadSource = searchParams.get("src") || "unknown";
     const body = await req.json();
     console.log("@@body", body);
-    const { الاسم: name, الايميل: email, "رقم الهاتف": phone } = body;
-
-    if (!name || !email || !phone) {
+    const { firstName, lastName, email, course, phoneNumber } = getBodyValues(
+      body,
+      leadSource
+    );
+    console.log("@@values", getBodyValues(body, leadSource));
+    if (!email || !phoneNumber) {
       return NextResponse.json(
         { success: false, error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    const [firstName, lastName] = name.split(" ");
+    console.log("@@first and course", firstName, course);
 
     const { access_token } = await getZohoAccessToken();
 
@@ -36,25 +60,13 @@ export async function POST(req: Request) {
             First_Name: lastName,
             Email: email,
             Company: "",
-            Phone: phone,
+            Phone: phoneNumber,
+            Lead_Source: leadSource,
+            Tag: course || leadCourse,
           },
         ],
       }),
     });
-
-    const data = await res.json();
-
-    const supabaseAdmin = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
-
-    const { error } = await supabaseAdmin
-      .from("leads")
-      .insert([{ name, email, phone, course }]);
-    if (error) {
-      console.error("Insert lead error:", error);
-    }
 
     const transporter = nodemailer.createTransport({
       host: "smtp.sendgrid.net",
@@ -73,7 +85,7 @@ export async function POST(req: Request) {
       <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
         <tr>
           <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Name:</strong></td>
-          <td style="padding: 8px; border-bottom: 1px solid #ddd;">${name}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #ddd;">${firstName}</td>
         </tr>
         <tr>
           <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Email:</strong></td>
@@ -81,7 +93,7 @@ export async function POST(req: Request) {
         </tr>
         <tr>
           <td style="padding: 8px; border-bottom: 1px solid #ddd;"><strong>Phone:</strong></td>
-          <td style="padding: 8px; border-bottom: 1px solid #ddd;">${phone}</td>
+          <td style="padding: 8px; border-bottom: 1px solid #ddd;">${phoneNumber}</td>
         </tr>
         <tr>
           <td style="padding: 8px;"><strong>Course:</strong></td>
@@ -98,7 +110,7 @@ export async function POST(req: Request) {
     const mailOptions = {
       from: process.env.SENDGRID_FROM_EMAIL!,
       to: process.env.SENDGRID_TO_EMAIL!,
-      subject: `New Lead: ${name} - ${phone} - ${course}`,
+      subject: `New Lead: ${firstName} - ${phoneNumber} - ${course}`,
       html,
     };
 
