@@ -1,10 +1,11 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import CoursesSection, { ICourse } from "./components/Courses";
+import CoursesSection from "./components/Courses";
 import { createClient } from "@/utils/supabase/client";
 import { useSearchParams } from "next/navigation";
 import CourseCardSkeleton from "./loading";
+import { ICourse } from "@/utils/types";
 
 export default function CoursesPage() {
 
@@ -22,14 +23,9 @@ export default function CoursesPage() {
     const fetchCourses = async (userId: string) => {
         setLoading(true)
         const supabase = createClient();
-
-        // Fetch courses
-        const { data: coursesData } = await supabase.from("courses").select("*");
-        if (!coursesData) {
-            setLoading(false);
-            return;
-        }
-
+        const res = await fetch('/api/zoho/courses', { method: "GET" })
+        const coursesData = await res.json()
+        console.log('@@coursedata', coursesData)
         const { data: subscriptions } = await supabase
             .from("user_courses")
             .select("course_id")
@@ -37,7 +33,7 @@ export default function CoursesPage() {
 
         const subscribedCourseIds = subscriptions?.map(s => s.course_id) || [];
 
-        const mapped = coursesData.map(course => ({
+        const mapped = coursesData.map((course: any) => ({
             ...course,
             isSubscribed: subscribedCourseIds.includes(course.id),
         }));

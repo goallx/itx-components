@@ -2,16 +2,8 @@
 
 import React from "react";
 import CourseCard from "./CourseCard";
+import { ICourse } from "@/utils/types";
 
-export interface ICourse {
-    id: number;
-    name: string;
-    description: string;
-    image: string;
-    redirect_url: string;
-    isSubscribed?: boolean;
-    created_at?: string;
-}
 
 interface CoursesSectionProps {
     courses: ICourse[];
